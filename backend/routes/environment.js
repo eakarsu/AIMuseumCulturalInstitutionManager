@@ -65,4 +65,55 @@ router.delete('/:id', async (req, res) => {
   }
 });
 
+// POST /check-alerts — query recent logs, create maintenance_requests for out-of-range
+router.post('/check-alerts', async (req, res) => {
+  try {
+    // Ensure maintenance_requests table exists
+    await pool.query(`CREATE TABLE IF NOT EXISTS maintenance_requests (
+      id SERIAL PRIMARY KEY, title TEXT, location TEXT, type VARCHAR(100),
+      priority VARCHAR(50) DEFAULT 'medium', status VARCHAR(50) DEFAULT 'open',
+      reported_by TEXT, assigned_to TEXT, reported_date DATE, completed_date DATE,
+      cost DECIMAL(10,2), description TEXT, created_at TIMESTAMP DEFAULT NOW()
+    )`);
+
+    // Fetch recent environment logs (last 24h)
+    const recentLogs = await pool.query(
+      `SELECT * FROM environment_logs WHERE created_at >= NOW() - INTERVAL '24 hours' ORDER BY created_at DESC`
+    );
+
+    const outOfRange = [];
+    const alertsCreated = [];
+
+    for (const log of recentLogs.rows) {
+      const issues = [];
+      if (log.temperature !== null && (parseFloat(log.temperature) < 18 || parseFloat(log.temperature) > 22)) {
+        issues.push(`Temperature ${log.temperature}°C (safe: 18-22°C)`);
+      }
+      if (log.humidity !== null && (parseFloat(log.humidity) < 45 || parseFloat(log.humidity) > 55)) {
+        issues.push(`Humidity ${log.humidity}% (safe: 45-55%)`);
+      }
+
+      if (issues.length > 0) {
+        outOfRange.push({ log_id: log.id, gallery_id: log.gallery_id, issues, recorded_at: log.created_at });
+        const title = `Environmental Alert - Gallery ${log.gallery_id || 'Unknown'}`;
+        const description = `Out-of-range readings detected: ${issues.join(', ')}. Logged at ${log.created_at}.`;
+        const mr = await pool.query(
+          `INSERT INTO maintenance_requests (title, location, type, priority, status, reported_by, reported_date, description)
+           VALUES ($1, $2, 'environmental', 'high', 'open', 'system', CURRENT_DATE, $3) RETURNING *`,
+          [title, `Gallery ${log.gallery_id || 'Unknown'}`, description]
+        );
+        alertsCreated.push(mr.rows[0]);
+      }
+    }
+
+    res.json({
+      alerts_created: alertsCreated.length,
+      out_of_range_readings: outOfRange,
+      maintenance_requests: alertsCreated,
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 export default router;

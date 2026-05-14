@@ -1,5 +1,6 @@
 import express from 'express';
 import cors from 'cors';
+import helmet from 'helmet';
 import dotenv from 'dotenv';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
@@ -28,6 +29,13 @@ import securityRoutes from './routes/security.js';
 import maintenanceRoutes from './routes/maintenance.js';
 import aiRoutes from './routes/ai.js';
 
+// === BATCH 05 AUTO-MOUNT imports ===
+import collectionCuratorAgentRouter from './routes/collection-curator-agent.js';
+import visionArtifactDocRouter from './routes/vision-artifact-doc.js';
+import visitorJourneyAgentRouter from './routes/visitor-journey-agent.js';
+import conservationAutonomousRouter from './routes/conservation-autonomous.js';
+import interMuseumNetworkRouter from './routes/inter-museum-network.js';
+
 dotenv.config({ path: '../.env' });
 
 const app = express();
@@ -37,7 +45,11 @@ const JWT_SECRET = process.env.JWT_SECRET || 'museum-secret-key-change-in-produc
 // ---------------------------------------------------------------------------
 // Middleware
 // ---------------------------------------------------------------------------
-app.use(cors());
+app.use(helmet());
+app.use(cors({
+  origin: process.env.CLIENT_URL || 'http://localhost:5173',
+  credentials: true,
+}));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
@@ -166,3 +178,26 @@ app.listen(PORT, () => {
 });
 
 export default app;
+
+
+// === BATCH 05 AUTO-MOUNT (custom feature suggestions) ===
+app.use('/api/collection-curator-agent', collectionCuratorAgentRouter);
+app.use('/api/vision-artifact-doc', visionArtifactDocRouter);
+app.use('/api/visitor-journey-agent', visitorJourneyAgentRouter);
+app.use('/api/conservation-autonomous', conservationAutonomousRouter);
+app.use('/api/inter-museum-network', interMuseumNetworkRouter);
+
+// === Batch 05 Gaps & Frontend Mounts ===
+try { const _gap_ai_visitor_experience_personalize = require('./routes/gap-ai-visitor-experience-personalize'); app.use('/api/gap-ai-visitor-experience-personalize', _gap_ai_visitor_experience_personalize); } catch(e) { console.error('gap mount fail ai-visitor-experience-personalize:', e.message); }
+try { const _gap_ai_collection_valuation = require('./routes/gap-ai-collection-valuation'); app.use('/api/gap-ai-collection-valuation', _gap_ai_collection_valuation); } catch(e) { console.error('gap mount fail ai-collection-valuation:', e.message); }
+try { const _gap_ai_conservation_priority = require('./routes/gap-ai-conservation-priority'); app.use('/api/gap-ai-conservation-priority', _gap_ai_conservation_priority); } catch(e) { console.error('gap mount fail ai-conservation-priority:', e.message); }
+try { const _gap_ai_event_attendance_predict = require('./routes/gap-ai-event-attendance-predict'); app.use('/api/gap-ai-event-attendance-predict', _gap_ai_event_attendance_predict); } catch(e) { console.error('gap mount fail ai-event-attendance-predict:', e.message); }
+try { const _gap_visitor = require('./routes/gap-visitor'); app.use('/api/gap-visitor', _gap_visitor); } catch(e) { console.error('gap mount fail visitor:', e.message); }
+try { const _gap_virtual = require('./routes/gap-virtual'); app.use('/api/gap-virtual', _gap_virtual); } catch(e) { console.error('gap mount fail virtual:', e.message); }
+try { const _gap_teacher = require('./routes/gap-teacher'); app.use('/api/gap-teacher', _gap_teacher); } catch(e) { console.error('gap mount fail teacher:', e.message); }
+try { const _gap_donation = require('./routes/gap-donation'); app.use('/api/gap-donation', _gap_donation); } catch(e) { console.error('gap mount fail donation:', e.message); }
+try { const _gap_conservation = require('./routes/gap-conservation'); app.use('/api/gap-conservation', _gap_conservation); } catch(e) { console.error('gap mount fail conservation:', e.message); }
+try { const _gap_security = require('./routes/gap-security'); app.use('/api/gap-security', _gap_security); } catch(e) { console.error('gap mount fail security:', e.message); }
+try { const _gap_mobile = require('./routes/gap-mobile'); app.use('/api/gap-mobile', _gap_mobile); } catch(e) { console.error('gap mount fail mobile:', e.message); }
+try { const _gap_authentication = require('./routes/gap-authentication'); app.use('/api/gap-authentication', _gap_authentication); } catch(e) { console.error('gap mount fail authentication:', e.message); }
+// === End Batch 05 Mounts ===

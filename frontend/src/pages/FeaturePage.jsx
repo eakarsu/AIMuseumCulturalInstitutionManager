@@ -421,6 +421,8 @@ function formatDateForInput(value) {
   return value;
 }
 
+const PAGINATED_FEATURES = new Set(['collections', 'objects', 'exhibitions', 'loans']);
+
 export default function FeaturePage() {
   const { feature } = useParams();
   const navigate = useNavigate();
@@ -436,15 +438,26 @@ export default function FeaturePage() {
   const [formData, setFormData] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
-  const fetchData = useCallback(async () => {
+  const fetchData = useCallback(async (p = 1) => {
     if (!config) return;
     setLoading(true);
     setError('');
     try {
-      const data = await api.get(config.endpoint);
-      setItems(data);
-      setFiltered(data);
+      const isPaginated = PAGINATED_FEATURES.has(feature);
+      const url = isPaginated ? `${config.endpoint}?page=${p}&limit=20` : config.endpoint;
+      const data = await api.get(url);
+      if (isPaginated && data.data) {
+        setItems(data.data);
+        setFiltered(data.data);
+        setTotalPages(data.totalPages || 1);
+      } else {
+        const rows = Array.isArray(data) ? data : (data.data || []);
+        setItems(rows);
+        setFiltered(rows);
+      }
     } catch (err) {
       setError(err.message);
     } finally {
@@ -454,12 +467,18 @@ export default function FeaturePage() {
 
   useEffect(() => {
     if (config) {
-      fetchData();
+      setPage(1);
+      setTotalPages(1);
+      fetchData(1);
       setSearch('');
       setShowDetail(false);
       setShowForm(false);
     }
   }, [feature]);
+
+  useEffect(() => {
+    if (page > 1) fetchData(page);
+  }, [page]);
 
   useEffect(() => {
     if (!search.trim()) {
@@ -486,7 +505,7 @@ export default function FeaturePage() {
       await api.post(config.endpoint, formData);
       setShowForm(false);
       setFormData({});
-      fetchData();
+      fetchData(page);
     } catch (err) {
       alert('Error creating item: ' + err.message);
     }
@@ -499,7 +518,7 @@ export default function FeaturePage() {
       setShowForm(false);
       setEditItem(null);
       setFormData({});
-      fetchData();
+      fetchData(page);
     } catch (err) {
       alert('Error updating item: ' + err.message);
     }
@@ -511,7 +530,7 @@ export default function FeaturePage() {
       await api.delete(`${config.endpoint}/${id}`);
       setShowDetail(false);
       setSelectedItem(null);
-      fetchData();
+      fetchData(page);
     } catch (err) {
       alert('Error deleting item: ' + err.message);
     }
@@ -651,6 +670,28 @@ export default function FeaturePage() {
               ))}
             </tbody>
           </table>
+        </div>
+      )}
+
+      {PAGINATED_FEATURES.has(feature) && totalPages > 1 && (
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 16, padding: '20px 0' }}>
+          <button
+            disabled={page <= 1}
+            onClick={() => setPage(p => Math.max(1, p - 1))}
+            className="btn btn-secondary"
+            style={{ opacity: page <= 1 ? 0.4 : 1 }}
+          >
+            Prev
+          </button>
+          <span style={{ color: 'var(--gold)', fontSize: 14 }}>Page {page} of {totalPages}</span>
+          <button
+            disabled={page >= totalPages}
+            onClick={() => setPage(p => p + 1)}
+            className="btn btn-secondary"
+            style={{ opacity: page >= totalPages ? 0.4 : 1 }}
+          >
+            Next
+          </button>
         </div>
       )}
 

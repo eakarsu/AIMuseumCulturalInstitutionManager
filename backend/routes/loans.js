@@ -2,11 +2,22 @@ import { Router } from 'express';
 import pool from '../db.js';
 const router = Router();
 
-// GET all loans
+// GET all loans (paginated)
 router.get('/', async (req, res) => {
   try {
-    const result = await pool.query('SELECT * FROM loans ORDER BY id DESC');
-    res.json(result.rows);
+    const page = Math.max(1, parseInt(req.query.page) || 1);
+    const limit = Math.min(100, parseInt(req.query.limit) || 20);
+    const offset = (page - 1) * limit;
+
+    const total = await pool.query('SELECT COUNT(*) FROM loans');
+    const result = await pool.query('SELECT * FROM loans ORDER BY id DESC LIMIT $1 OFFSET $2', [limit, offset]);
+    res.json({
+      data: result.rows,
+      page,
+      limit,
+      total: parseInt(total.rows[0].count),
+      totalPages: Math.ceil(parseInt(total.rows[0].count) / limit),
+    });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

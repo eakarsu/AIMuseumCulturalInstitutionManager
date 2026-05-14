@@ -2,9 +2,14 @@ import dotenv from 'dotenv';
 dotenv.config({ path: '../.env' });
 
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
-const OPENROUTER_MODEL = process.env.OPENROUTER_MODEL || 'anthropic/claude-haiku-4.5';
+const OPENROUTER_MODEL = process.env.OPENROUTER_MODEL || 'anthropic/claude-3-5-sonnet-20241022';
 
 export async function generateAIContent(prompt, systemPrompt = '') {
+  if (!OPENROUTER_API_KEY) {
+    const err = new Error('AI service not configured (OPENROUTER_API_KEY missing)');
+    err.statusCode = 503;
+    throw err;
+  }
   try {
     const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
@@ -38,4 +43,24 @@ export async function generateAIContent(prompt, systemPrompt = '') {
     console.error('AI Generation Error:', error);
     throw error;
   }
+}
+
+export function parseAIJson(raw) {
+  // Strategy 1: direct JSON parse
+  try { return JSON.parse(raw); } catch {}
+
+  // Strategy 2: extract markdown JSON block
+  const blockMatch = raw.match(/```(?:json)?\s*([\s\S]*?)```/);
+  if (blockMatch) {
+    try { return JSON.parse(blockMatch[1].trim()); } catch {}
+  }
+
+  // Strategy 3: find outermost { } or [ ]
+  const objMatch = raw.match(/(\{[\s\S]*\}|\[[\s\S]*\])/);
+  if (objMatch) {
+    try { return JSON.parse(objMatch[1]); } catch {}
+  }
+
+  // Fallback: return as raw text field
+  return { raw_output: raw };
 }

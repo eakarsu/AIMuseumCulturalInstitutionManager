@@ -5,6 +5,9 @@ import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import FeaturePage from './pages/FeaturePage';
 import AIFeatures from './pages/AIFeatures';
+import EnvironmentMonitor from './pages/EnvironmentMonitor';
+import DonorInsights from './pages/DonorInsights';
+import AIAdvisor from './pages/AIAdvisor';
 
 function ProtectedRoute({ children }) {
   return isAuthenticated() ? children : <Navigate to="/login" />;
@@ -16,6 +19,9 @@ export default function App() {
       <Route path="/login" element={<Login />} />
       <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
       <Route path="/ai-tools" element={<ProtectedRoute><AIFeatures /></ProtectedRoute>} />
+      <Route path="/environment-monitor" element={<ProtectedRoute><EnvironmentMonitor /></ProtectedRoute>} />
+      <Route path="/donor-insights" element={<ProtectedRoute><DonorInsights /></ProtectedRoute>} />
+      <Route path="/ai-advisor" element={<ProtectedRoute><AIAdvisor /></ProtectedRoute>} />
       <Route path="/:feature" element={<ProtectedRoute><FeaturePage /></ProtectedRoute>} />
       <Route path="*" element={<Navigate to="/" />} />
     </Routes>

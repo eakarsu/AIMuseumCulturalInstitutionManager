@@ -24,6 +24,8 @@ const features = [
   { key: 'security', title: 'Security', description: 'Rounds tracking & incident reports', icon: '🔒', color: '#4D908E' },
   { key: 'maintenance', title: 'Maintenance', description: 'Facility maintenance requests', icon: '🔧', color: '#90BE6D' },
   { key: 'ai-tools', title: 'AI Tools', description: 'AI-powered content generation', icon: '🤖', color: '#c9a84c' },
+  { key: 'environment-monitor', title: 'Env Monitor', description: 'AI conservation risk & environmental alerts', icon: '🌡️', color: '#00B4D8' },
+  { key: 'donor-insights', title: 'Donor Insights', description: 'AI donor intelligence & grant recommendations', icon: '💡', color: '#FF6B6B' },
 ];
 
 export default function Dashboard() {

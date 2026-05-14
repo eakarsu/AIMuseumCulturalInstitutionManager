@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import pool from '../db.js';
+import { requireRole } from '../middleware/requireRole.js';
 const router = Router();
 
 // GET all tickets
@@ -23,8 +24,8 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// POST create ticket
-router.post('/', async (req, res) => {
+// POST create ticket — admin/ticketing only
+router.post('/', requireRole('admin', 'ticketing'), async (req, res) => {
   try {
     const { visitor_name, email, visit_date, ticket_type, quantity, amount, payment_method, status, exhibition_id } = req.body;
     const result = await pool.query(
