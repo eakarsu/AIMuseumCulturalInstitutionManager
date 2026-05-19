@@ -8,6 +8,7 @@ import AIFeatures from './pages/AIFeatures';
 import EnvironmentMonitor from './pages/EnvironmentMonitor';
 import DonorInsights from './pages/DonorInsights';
 import AIAdvisor from './pages/AIAdvisor';
+import CustomViewsPage from './pages/CustomViewsPage';
 
 function ProtectedRoute({ children }) {
   return isAuthenticated() ? children : <Navigate to="/login" />;
@@ -22,6 +23,7 @@ export default function App() {
       <Route path="/environment-monitor" element={<ProtectedRoute><EnvironmentMonitor /></ProtectedRoute>} />
       <Route path="/donor-insights" element={<ProtectedRoute><DonorInsights /></ProtectedRoute>} />
       <Route path="/ai-advisor" element={<ProtectedRoute><AIAdvisor /></ProtectedRoute>} />
+      <Route path="/custom-views" element={<ProtectedRoute><CustomViewsPage /></ProtectedRoute>} />
       <Route path="/:feature" element={<ProtectedRoute><FeaturePage /></ProtectedRoute>} />
       <Route path="*" element={<Navigate to="/" />} />
     </Routes>
