@@ -29,6 +29,7 @@ import securityRoutes from './routes/security.js';
 import maintenanceRoutes from './routes/maintenance.js';
 import aiRoutes from './routes/ai.js';
 import customViewsRoutes from './routes/customViews.js';
+import loanConditionRiskRoutes from './routes/loan-condition-risk.js';
 
 // === BATCH 05 AUTO-MOUNT imports ===
 import collectionCuratorAgentRouter from './routes/collection-curator-agent.js';
@@ -155,6 +156,7 @@ app.use('/api/security', authenticateToken, securityRoutes);
 app.use('/api/maintenance', authenticateToken, maintenanceRoutes);
 app.use('/api/ai', authenticateToken, aiRoutes);
 app.use('/api/custom-views', authenticateToken, customViewsRoutes);
+app.use('/api/loan-condition-risk', authenticateToken, loanConditionRiskRoutes);
 
 // ---------------------------------------------------------------------------
 // Error handling

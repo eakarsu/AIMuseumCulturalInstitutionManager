@@ -26,6 +26,7 @@ const features = [
   { key: 'ai-tools', title: 'AI Tools', description: 'AI-powered content generation', icon: '🤖', color: '#c9a84c' },
   { key: 'environment-monitor', title: 'Env Monitor', description: 'AI conservation risk & environmental alerts', icon: '🌡️', color: '#00B4D8' },
   { key: 'donor-insights', title: 'Donor Insights', description: 'AI donor intelligence & grant recommendations', icon: '💡', color: '#FF6B6B' },
+  { key: 'custom-views', title: 'Museum Views', description: 'Visitor flow, heatmap, reports & acquisition rules', icon: '🏛️', color: '#c9a84c' },
 ];
 
 export default function Dashboard() {
