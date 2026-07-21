@@ -5,7 +5,10 @@
   "scripts": {
     "start": "node server.js",
     "dev": "node --watch server.js",
-    "seed": "node seed.js"
+    "seed": "node seed.js && ALLOW_SCHEMA_MIGRATION=1 node scripts/migrate.js",
+    "migrate": "node scripts/migrate.js",
+    "create-admin": "node scripts/create-admin.js",
+    "test": "node --test test/*.test.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
