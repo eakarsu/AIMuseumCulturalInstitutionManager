@@ -37,6 +37,8 @@ async function request(path, options = {}) {
   return data;
 }
 
+export const apiRequest = request;
+
 export const api = {
   get: (path) => request(path),
   post: (path, body) => request(path, { method: 'POST', body: JSON.stringify(body) }),
